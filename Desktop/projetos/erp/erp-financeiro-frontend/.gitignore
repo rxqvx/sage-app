@@ -1,0 +1,16 @@
+# Ambiente
+.env
+.env.local
+.env.*.local
+
+# Node / Next
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Editor / SO
+.DS_Store
+.idea/
+*.swp

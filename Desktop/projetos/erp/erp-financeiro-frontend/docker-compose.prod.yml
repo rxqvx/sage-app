@@ -1,0 +1,39 @@
+# Producao. Em desenvolvimento este projeto nao usa Docker -- use `pnpm dev`.
+#
+#   BFF_URL=https://bff.seudominio.com.br/ \
+#   ERP_API_URL=http://backend:8000/api/v1/ \
+#     docker compose -f docker-compose.prod.yml up -d --build
+#
+# As duas URLs sao variaveis de RUNTIME, nao de build: o navegador fala apenas
+# com a propria origem, e quem conhece BFF e API e o servidor Next. Trocar de
+# ambiente nao exige reconstruir a imagem.
+#
+# Repare que ERP_API_URL usa o nome do SERVICO, nao um dominio publico. Quem
+# chama a API e este container, pela rede `erp-borda` -- entao a API do ERP nao
+# precisa estar exposta na internet, nem ter TLS proprio. Menos superficie.
+
+name: erp-prod-frontend
+
+services:
+  frontend:
+    build:
+      context: .
+      target: producao
+    restart: always
+    environment:
+      # Quem autentica as pessoas (admin-bff). Com barra no fim.
+      BFF_URL: "${BFF_URL:?defina BFF_URL, por exemplo https://bff.seudominio.com.br/}"
+      # A API do ERP, para onde o Route Handler encaminha ja com o token.
+      ERP_API_URL: "${ERP_API_URL:?defina ERP_API_URL, por exemplo https://api.seudominio.com.br/api/v1/}"
+    ports:
+      # Só no loopback, e apenas para diagnóstico no servidor. O proxy alcança o
+      # frontend pela rede `borda`, não por esta porta.
+      - "127.0.0.1:3000:3000"
+    networks:
+      - borda
+
+networks:
+  borda:
+    # Criada uma vez, fora do compose: `docker network create erp-borda`.
+    external: true
+    name: erp-borda

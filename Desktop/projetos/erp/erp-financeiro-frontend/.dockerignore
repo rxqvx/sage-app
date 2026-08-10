@@ -1,0 +1,30 @@
+# Sem este arquivo o `COPY . .` do estagio de build leva o `.env.local` para
+# dentro da imagem. Aqui ele nao contem senha, mas contem os enderecos internos
+# de BFF e API -- e o habito de deixar `.env*` entrar e o que um dia leva um
+# segredo junto.
+
+# --- Ambiente ------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# --- Git -----------------------------------------------------------------
+.git
+.gitignore
+.dockerignore
+
+# --- Dependencias e build ------------------------------------------------
+# O estagio `dependencias` roda `pnpm install` do zero a partir do lockfile.
+# Copiar o node_modules do host so tornaria o build lento e nao-reproduzivel --
+# e o do host pode ter binarios compilados para outra arquitetura.
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- Editor / SO ---------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+*.swp

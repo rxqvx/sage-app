@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased;
+  }
+
+  /* Foco visível e consistente — navegação por teclado é requisito, não extra. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand/60 ring-offset-2 ring-offset-white;
+  }
+
+  /*
+   * Quem configurou o sistema para reduzir movimento não recebe nenhuma
+   * animação. Num sistema financeiro de uso contínuo isso não é detalhe:
+   * movimento constante causa fadiga e, para parte das pessoas, enjoo.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .botao-primario {
+    @apply inline-flex items-center gap-2 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-white
+           transition-all duration-200 hover:bg-brand-dark hover:shadow-md hover:shadow-brand/25
+           active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60
+           disabled:hover:shadow-none disabled:active:scale-100;
+  }
+
+  .botao-secundario {
+    @apply inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm
+           font-medium text-slate-700 transition-all duration-200 hover:border-slate-400 hover:bg-slate-50
+           active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100;
+  }
+
+  .cartao {
+    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+  }
+
+  /* Cartão que reage ao ponteiro — usado onde o bloco inteiro é informativo. */
+  .cartao-interativo {
+    @apply cartao transition-all duration-300 ease-saida
+           hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg hover:shadow-slate-200/60;
+  }
+
+  .campo {
+    @apply w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 outline-none
+           transition-all duration-200 hover:border-slate-400
+           focus:border-brand focus:ring-2 focus:ring-brand/20;
+  }
+
+  .rotulo-campo {
+    @apply mb-1 block text-sm font-medium text-slate-600;
+  }
+
+  /* Skeleton com varredura de luz, em vez do pulse achatado. */
+  .esqueleto {
+    @apply relative overflow-hidden rounded-lg bg-slate-100;
+  }
+
+  .esqueleto::after {
+    @apply absolute inset-0 animate-brilho bg-gradient-to-r from-transparent via-white/70 to-transparent;
+    content: "";
+  }
+
+  /*
+   * Colapso suave sem altura fixa: o grid interpola de 0fr para 1fr, então o
+   * submenu abre com a altura real do conteúdo, qualquer que seja ela — sem
+   * `max-height` chutado, que sempre erra para mais ou para menos.
+   */
+  .colapso {
+    @apply grid transition-[grid-template-rows] duration-300 ease-saida;
+    grid-template-rows: 0fr;
+  }
+
+  .colapso-aberto {
+    grid-template-rows: 1fr;
+  }
+
+  .colapso > * {
+    @apply overflow-hidden;
+    /* Item de grid tem `min-height: auto` por padrão, o que impede o
+       conteúdo de encolher até zero e trava a animação de fechamento. */
+    min-height: 0;
+  }
+
+  /*
+   * O conteúdo acompanha a altura esmaecendo e deslizando. Só recortar deixa
+   * a borda do corte dura, principalmente no fechamento.
+   */
+  .colapso-conteudo {
+    @apply -translate-y-1 opacity-0 transition-[opacity,transform] duration-200 ease-saida;
+  }
+
+  .colapso-aberto .colapso-conteudo {
+    @apply translate-y-0 opacity-100;
+    /* Espera a altura começar a abrir antes de aparecer; no fechamento o
+       atraso é zero, então o conteúdo some antes de a altura colapsar. */
+    transition-delay: 80ms;
+  }
+
+  /* Entrada em sequência dos itens, só na abertura. */
+  .colapso-aberto .colapso-item {
+    @apply translate-x-0 opacity-100;
+    transition-delay: calc(80ms + var(--indice, 0) * 35ms);
+  }
+
+  .colapso-item {
+    @apply -translate-x-1 opacity-0 transition-[opacity,transform] duration-200 ease-saida;
+  }
+}
+
+@layer utilities {
+  /*
+   * Entrada em cascata. O índice vira atraso, então listas e cartões surgem
+   * em sequência em vez de todos de uma vez.
+   */
+  .cascata {
+    animation-delay: calc(var(--indice, 0) * 45ms);
+  }
+
+  .cascata-rapida {
+    animation-delay: calc(var(--indice, 0) * 22ms);
+  }
+}
